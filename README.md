@@ -18,6 +18,9 @@ I found the mediakey on my phone to decrypt it as:
 
 	TKgNZsaEAvtTzNEgfDqd5UAdmnBNUcJtN7mxMKunAPw=
 
+This is just example code. A better tool can be found here:
+
+	https://github.com/ddz/whatsapp-media-decrypt
 
 
 ## Preparation
