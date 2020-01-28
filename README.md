@@ -2,19 +2,28 @@
 
 # Whatsapp decryption of .enc files
 
-This is a fork of the [whatsapp-web-reveng](https://github.com/sigalor/whatsapp-web-reveng) project to
-do only one thing; decrypt those .enc end-to-end encrypted media files. This is for that news story
-about the Saudi's hacking Bezos, where the forensics investigators couldn't decrypt the .enc file
-that contained the suspect video. They suspect it might contain a virus.
+This is a fork of the [whatsapp-web-reveng](https://github.com/sigalor/whatsapp-web-reveng) project.
+I don't understand most of it, only the file I added (`backend/whats-enc.py`).
 
-So far, I can successfully decrypt JPEGs, but I can't get streaming video to decrypt. That's because
-the encryption is slightly different, so that users can skip forward in a stream without having to
-download the entire video. I understand the principle, just not the exact mechanics.
+All this does is demonstrate how to decrypt the .enc encrypted media file at the heart
+of the "[Saudis hack Bezos](https://www.ohchr.org/Documents/Issues/Expression/SRsSumexFreedexAnnexes.pdf)	" story. They found an encrypted file they couldn't decrypt,
+so theorize that it contains malware/exploits.
+
+However, such files can easily be decrypted, as this project shows. I use a video
+sent to my own phone with the URL of:
+
+	https://mmg-fna.whatsapp.net/d/f/AsnGB7gNh6Yw52MScbJyTRMo3NCmzMpesUIYyFmEZ0lR.enc
+
+I found the mediakey on my phone to decrypt it as:
+
+	TKgNZsaEAvtTzNEgfDqd5UAdmnBNUcJtN7mxMKunAPw=
+
+
 
 ## Preparation
 
 These are the instructions for getting the environment working. I've only tried under WSL
-(Windows Linux), but should work on macOS, native Windows, and native Linux as well.
+(Windows Linux) and macOS, but it should work generally.
 
 - Python 2.7 with the following `pip` packages installed:
   - `websocket-client` and `git+https://github.com/dpallot/simple-websocket-server.git` for acting as WebSocket server and client.
@@ -23,6 +32,11 @@ These are the instructions for getting the environment working. I've only tried 
   - `protobuf` for reading and writing the binary conversation format.
 
 Just run `pip install -r requirements.txt` for all Python dependencies.
+
+On macOS, installing `protobuf` breaks. I had to do this manually with:
+
+	pip install protobuf --ignore-installed
+
 
 ## The code
 
@@ -55,28 +69,21 @@ I used `Reincumbate iPhone Backup Extractor` on Windows to both created a backup
 of my iPhone, then extract the WhatsApp message database.
 
 The database was in the path `/Application Groups/net.whatsapp.WhatsApp.shared/chatstorage.sqlite`.
+If you don't use tools to extract files, you can instead just grab the file
+directly yourself
 
 I then opened that database in `sqlitebrowser` and went to the `ZWAMEDIAITEM` database. In that database,
 the column `ZMEDIAURL` holds the URL and `ZMEDIAKEY` holds the media key.
 
 The URL for one of the rows is the following:
 
-	https://mmg-fna.whatsapp.net/d/f/Ap2hVbW3Da_8idKFxKUVgS7AVbDymv55tXbDVZgCAUE-.enc
+	https://mmg-fna.whatsapp.net/d/f/AsnGB7gNh6Yw52MScbJyTRMo3NCmzMpesUIYyFmEZ0lR.enc
 
-The media key is in a protobuf format, a binary blob. The blob decodes as:
-
-	0a 20
-	92b9365a283534d14f658481434832ba8a77267d93b637f110df9725379f2ed0
-	12 20
-	f404cac1135302af0381472d9c938be0205112583356bf60dc4300346f79d7ff
-	18
- 	d6d3a8f105
-	20 00
-
+The media key is in a protobuf format, a binary blob.
 The first field is the media key, the second field is the hash. Base64 encoding
 the media key gets:
 
-	krk2Wig1NNFPZYSBQ0gyuop3Jn2TtjfxEN+XJTefLtA=
+	TKgNZsaEAvtTzNEgfDqd5UAdmnBNUcJtN7mxMKunAPw=
 
 ## Running
 
@@ -87,7 +94,7 @@ Just run the program:
 
 This generates the file:
 
-	rob.jpeg
+	rob.mp4
 
-Which if you look at the code, was downloaded from the URL and decrypted.
-You can open the JPEG and have a look.
+You can then load the video in your favorite app, like VNC.
+
